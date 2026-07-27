@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Pemuda/i Gereja BNKP Samosir</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #334155;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 32px 24px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header-icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .header h2 {
+      font-size: 20px;
+      color: #1e293b;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: #2563eb;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #64748b;
+      padding: 4px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: #1e40af;
+    }
+
+    .toggle-mode {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .toggle-mode a {
+      color: #2563eb;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .divider {
+      margin: 20px 0;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .btn-install {
+      width: 100%;
+      padding: 10px;
+      background-color: #fef3c7;
+      color: #d97706;
+      border: 1px solid #fcd34d;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-install:hover {
+      background-color: #fde68a;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <div class="header-icon">⛪</div>
+      <h2 id="title-text">Masuk ke Aplikasi</h2>
+      <p>Pemuda/i BNKP Persiapan Samosir</p>
+    </div>
+
+    <form id="auth-form">
+      <!-- Username (Khusus Register) -->
+      <div class="form-group hidden" id="group-username">
+        <label for="username">Nama Lengkap / Username</label>
+        <input type="text" id="username" placeholder="Masukkan nama Anda">
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="contoh@gmail.com" required>
+      </div>
+
+      <!-- Password dengan Toggle Lihat/Sembunyi -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <input type="password" id="password" placeholder="••••••••" required>
+          <button type="button" id="btn-toggle-password" class="password-toggle" title="Lihat/Sembunyikan Password">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" id="btn-submit" class="btn-submit">Masuk</button>
+    </form>
+
+    <div class="toggle-mode">
+      <span id="switch-text">Belum punya akun?</span>
+      <a href="#" id="btn-switch">Daftar sekarang</a>
+    </div>
+
+    <!-- Tombol Install Aplikasi -->
+    <div class="divider"></div>
+    <button id="btn-install" class="btn-install hidden">
+      📲 Install Aplikasi ke HP / Laptop
+    </button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c",
+      authDomain: "kas-pemuda-gereja.firebaseapp.com",
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com",
+      projectId: "kas-pemuda-gereja",
+      storageBucket: "kas-pemuda-gereja.firebasestorage.app",
+      messagingSenderId: "946271302582",
+      appId: "1:946271302582:web:f475674da83287da3a8717",
+      measurementId: "G-TNV0Q76TN4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let isLogin = true;
+
+    // Elemen DOM
+    const titleText = document.getElementById('title-text');
+    const groupUsername = document.getElementById('group-username');
+    const btnSubmit = document.getElementById('btn-submit');
+    const switchText = document.getElementById('switch-text');
+    const btnSwitch = document.getElementById('btn-switch');
+    const passwordInput = document.getElementById('password');
+    const btnTogglePassword = document.getElementById('btn-toggle-password');
+    const btnInstall = document.getElementById('btn-install');
+
+    // Toggle Lihat / Sembunyikan Password
+    btnTogglePassword.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        btnTogglePassword.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        btnTogglePassword.textContent = '👁️';
+      }
+    });
+
+    // Switch Login <-> Register
+    btnSwitch.addEventListener('click', (e) => {
+      e.preventDefault();
+      isLogin = !isLogin;
+
+      if (isLogin) {
+        titleText.textContent = "Masuk ke Aplikasi";
+        groupUsername.classList.add('hidden');
+        btnSubmit.textContent = "Masuk";
+        switchText.textContent = "Belum punya akun?";
+        btnSwitch.textContent = "Daftar sekarang";
+      } else {
+        titleText.textContent = "Buat Akun Baru";
+        groupUsername.classList.remove('hidden');
+        btnSubmit.textContent = "Daftar";
+        switchText.textContent = "Sudah punya akun?";
+        btnSwitch.textContent = "Masuk di sini";
+      }
+    });
+
+    // Cek jika user sudah login
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    // Handle Form Submit
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = passwordInput.value;
+
+      try {
+        if (isLogin) {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          const username = document.getElementById('username').value;
+          if (!username) return alert("Harap isi nama/username!");
+
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          // Simpan data role awal sebagai 'umum'
+          await set(ref(db, `users/${user.uid}`), {
+            username: username,
+            email: email,
+            role: 'umum'
+          });
+        }
+      } catch (error) {
+        alert("Gagal: " + error.message);
+      }
+    });
+
+    // Fitur Install Aplikasi (PWA)
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btnInstall.classList.remove('hidden');
+    });
+
+    btnInstall.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          btnInstall.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      }
+    });
+  </script>
+</body>
+</html>
