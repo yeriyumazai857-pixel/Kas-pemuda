@@ -3,23 +3,195 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ayat Alkitab - BNKP Samosir</title>
+  <title>Ayat Alkitab - Pemuda/i BNKP Samosir</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f8fafc; color: #334155; padding: 20px 16px; }
-    .container { max-width: 600px; margin: 0 auto; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .header h1 { font-size: 20px; color: #0f172a; }
-    .back-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
-    
-    .card { background: white; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .kitab-title { font-weight: 700; font-size: 16px; color: #2563eb; margin-bottom: 8px; display: flex; gap: 6px; align-items: center;}
-    .isi-ayat { font-size: 14px; color: #334155; font-style: italic; margin-bottom: 12px; line-height: 1.5; }
-    .penginput { font-size: 11px; color: #94a3b8; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 8px; }
-    .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; background: white; border-radius: 12px; border: 1px dashed #cbd5e1; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #334155;
+      padding: 20px 16px 80px 16px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Header & Navigasi */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #1e293b;
+    }
+
+    .back-btn {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Counter Badge & Search Box */
+    .stats-card {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
+    }
+
+    .stats-card span {
+      font-size: 13px;
+      color: #bfdbfe;
+    }
+
+    .stats-card h2 {
+      font-size: 24px;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: #2563eb;
+    }
+
+    /* Grid Ayat */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: white;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    .card h3 {
+      font-size: 16px;
+      color: #1e3a8a;
+    }
+
+    .card p.isi-ayat {
+      font-size: 14px;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .card-footer-info {
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Tombol Hapus Khusus Admin */
+    .card-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 10px;
+    }
+
+    .btn-delete {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-delete:hover {
+      background-color: #dc2626;
+    }
+
+    /* Floating Navigation Buttons */
+    .floating-nav {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: #1e3a8a;
+      color: white;
+      border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .nav-btn:active {
+      transform: scale(0.9);
+    }
   </style>
 </head>
 <body>
+
+  <!-- Top Anchor -->
+  <div id="top"></div>
 
   <div class="container">
     <div class="header">
@@ -27,60 +199,156 @@
       <a href="dashboard.html" class="back-btn">← Dashboard</a>
     </div>
 
-    <div id="list-ayat">
-      <div class="empty-state">Memuat data...</div>
+    <!-- Total Ayat Card -->
+    <div class="stats-card">
+      <div>
+        <span>Jumlah Ayat Tersedia</span>
+        <h2 id="total-count">0 Ayat</h2>
+      </div>
+      <div style="font-size: 30px;">📖</div>
     </div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="🔍 Cari referensi atau isi ayat...">
+    </div>
+
+    <!-- Grid List Ayat -->
+    <div id="list-ayat" class="grid">
+      <div style="text-align: center; color: #94a3b8; padding: 40px 0;">Memuat data...</div>
+    </div>
+
+    <!-- Bottom Anchor -->
+    <div id="bottom"></div>
+  </div>
+
+  <!-- Floating Nav Buttons -->
+  <div class="floating-nav">
+    <button class="nav-btn" id="btn-to-top" title="Ke Paling Atas">⬆</button>
+    <button class="nav-btn" id="btn-to-bottom" title="Ke Paling Bawah">⬇</button>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, get, child, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c",
-      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com",
-      projectId: "kas-pemuda-gereja"
+    const firebaseConfig = { 
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c", 
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com", 
+      projectId: "kas-pemuda-gereja" 
     };
-
+    
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) window.location.href = "index.html";
-      else loadAyat();
+    let allAyat = [];
+    let isAdmin = false;
+
+    // Cek Status Login & Role User
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        try {
+          const snapshot = await get(child(ref(db), `users/${user.uid}`));
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            if (userData.role === 'admin') {
+              isAdmin = true;
+            }
+          }
+        } catch (e) {
+          console.error("Gagal memeriksa role admin:", e);
+        }
+        loadAyatData();
+      }
     });
 
-    function loadAyat() {
-      onValue(ref(db, 'ayat'), (snapshot) => {
-        const container = document.getElementById('list-ayat');
-        container.innerHTML = '';
-        let count = 0;
+    // Render List Ayat
+    function renderAyat(ayatList) {
+      const container = document.getElementById('list-ayat');
+      container.innerHTML = '';
 
+      if (ayatList.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px;">Tidak ada ayat alkitab yang cocok.</div>';
+        return;
+      }
+
+      ayatList.forEach((item) => {
+        // Tombol Hapus hanya muncul jika isAdmin true
+        const deleteButtonHtml = isAdmin ? `
+          <div class="card-footer">
+            <button class="btn-delete" onclick="hapusAyat('${item.id}', '${item.referensi}')">Hapus Ayat</button>
+          </div>
+        ` : '';
+
+        container.innerHTML += `
+          <div class="card">
+            <div class="card-header">
+              <h3>📖 ${item.referensi || '-'}</h3>
+            </div>
+            <p class="isi-ayat">"${item.isi || '-'}"</p>
+            <div class="card-footer-info">
+              <span>Penginput: <b>${item.penginput || 'Anonim'}</b></span>
+            </div>
+            ${deleteButtonHtml}
+          </div>
+        `;
+      });
+    }
+
+    // Fungsi Hapus Ayat (Global agar bisa dipanggil onclick)
+    window.hapusAyat = async function(id, referensi) {
+      if (confirm(`Yakin ingin menghapus ayat "${referensi}"?`)) {
+        try {
+          await remove(ref(db, `ayat/${id}`));
+          alert("Ayat alkitab berhasil dihapus.");
+        } catch (err) {
+          alert("Gagal menghapus data: " + err.message);
+        }
+      }
+    };
+
+    // Load Data dari Firebase (Menampilkan data yang berstatus 'approved' ATAU data lama yang belum punya status)
+    function loadAyatData() {
+      onValue(ref(db, 'ayat'), (snapshot) => {
+        allAyat = [];
         if (snapshot.exists()) {
           snapshot.forEach((child) => {
-            const val = child.val();
-            
-            // KUNCI: Hanya tampilkan ayat jika statusnya 'approved'
-            if (val.status === 'approved' || !val.status) {
-              count++;
-              container.innerHTML += `
-                <div class="card">
-                  <div class="kitab-title">📖 ${val.kitab} ${val.pasal} : ${val.ayat}</div>
-                  <div class="isi-ayat">"${val.isi}"</div>
-                  <div class="penginput">Dikirim oleh: <b>${val.penginput || 'Anonim'}</b></div>
-                </div>
-              `;
+            const data = child.val();
+            // Masukkan jika statusnya 'approved' atau jika properti status belum ada (data lama) dan bukan 'pending'
+            if (data.status === 'approved' || !data.status || data.status !== 'pending') {
+              data.id = child.key;
+              allAyat.push(data);
             }
           });
         }
 
-        if (count === 0) {
-          container.innerHTML = '<div class="empty-state">Belum ada ayat Alkitab yang disetujui.</div>';
-        }
+        document.getElementById('total-count').textContent = `${allAyat.length} Ayat`;
+        renderAyat(allAyat);
       });
     }
+
+    // Fitur Search / Pencarian
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const keyword = e.target.value.toLowerCase();
+      const filtered = allAyat.filter(m => 
+        (m.referensi && m.referensi.toLowerCase().includes(keyword)) || 
+        (m.isi && m.isi.toLowerCase().includes(keyword))
+      );
+      renderAyat(filtered);
+    });
+
+    // Navigasi Atas & Bawah
+    document.getElementById('btn-to-top').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-to-bottom').addEventListener('click', () => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
   </script>
 </body>
 </html>
