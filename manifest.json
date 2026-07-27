@@ -1,7 +1,7 @@
 {
   "name": "Kas Pemuda BNKP Samosir",
   "short_name": "Kas Pemuda",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#1e3a8a",
