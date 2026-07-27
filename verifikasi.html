@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status & Persetujuan Kas - Pemuda/i BNKP Samosir</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #334155;
+      padding: 20px 16px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #0f172a;
+    }
+
+    .back-btn {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .info-box {
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card-pending {
+      background: white;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-title h3 {
+      font-size: 15px;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+
+    .card-title p {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .badge-type {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-masuk {
+      background-color: #d1fae5;
+      color: #047857;
+    }
+
+    .badge-keluar {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* Badge Status Transaksi */
+    .status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .status-pending { background-color: #fef3c7; color: #d97706; }
+    .status-diterima { background-color: #d1fae5; color: #047857; }
+    .status-ditolak { background-color: #fee2e2; color: #b91c1c; }
+
+    .card-body {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f8fafc;
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .amount {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .amount.masuk { color: #16a34a; }
+    .amount.keluar { color: #dc2626; }
+
+    .penginput-info {
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-approve {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .btn-approve:hover {
+      background-color: #059669;
+    }
+
+    .btn-reject {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background-color: #dc2626;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #94a3b8;
+      background: white;
+      border-radius: 14px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>📋 Status & Persetujuan Kas</h1>
+      <a href="dashboard.html" class="back-btn">← Dashboard</a>
+    </div>
+
+    <div class="info-box" id="info-text">
+      📌 Riwayat dan status pengajuan transaksi kas pemuda.
+    </div>
+
+    <!-- Container Daftar Transaksi -->
+    <div id="list-pending" class="list-container">
+      <div style="text-align: center; color: #94a3b8; padding: 20px;">Memuat data transaksi...</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, get, child, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = { 
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c", 
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com", 
+      projectId: "kas-pemuda-gereja" 
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let isAdmin = false;
+
+    // Cek User Login & Role
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        try {
+          const snapshot = await get(child(ref(db), `users/${user.uid}`));
+          if (snapshot.exists() && snapshot.val().role === 'admin') {
+            isAdmin = true;
+            document.getElementById('info-text').innerHTML = '📌 <b>Panel Admin:</b> Anda memiliki wewenang untuk Menyetujui atau Menolak transaksi kas.';
+          } else {
+            isAdmin = false;
+            document.getElementById('info-text').innerHTML = '📌 Pantau status pengajuan kas (Menunggu Verifikasi, Diterima, atau Ditolak).';
+          }
+        } catch (e) {
+          isAdmin = false;
+        }
+
+        loadTransactions();
+      }
+    });
+
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+    }
+
+    function formatDate(dateStr) {
+      if(!dateStr) return "-";
+      const parts = dateStr.split('-');
+      if(parts.length !== 3) return dateStr;
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+      return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
+    }
+
+    // Load Data Transaksi
+    function loadTransactions() {
+      onValue(ref(db, 'kas'), (snapshot) => {
+        const container = document.getElementById('list-pending');
+        container.innerHTML = '';
+
+        let listData = [];
+
+        if (snapshot.exists()) {
+          snapshot.forEach((child) => {
+            const key = child.key;
+            const val = child.val();
+            listData.push({ key, ...val });
+          });
+        }
+
+        if (listData.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div style="font-size: 32px;">📭</div>
+              <p>Belum ada riwayat transaksi kas.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Urutkan dari yang terbaru berdasarkan tanggal
+        listData.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        listData.forEach((item) => {
+          const isMasuk = item.jenis === 'masuk';
+          const status = item.status || 'diterima'; // Default data lama diset diterima
+
+          let statusBadgeHTML = '';
+          if (status === 'pending') {
+            statusBadgeHTML = `<span class="status-badge status-pending">⏳ Menunggu Verifikasi</span>`;
+          } else if (status === 'diterima') {
+            statusBadgeHTML = `<span class="status-badge status-diterima">✔ Diterima</span>`;
+          } else if (status === 'ditolak') {
+            statusBadgeHTML = `<span class="status-badge status-ditolak">✖ Ditolak</span>`;
+          }
+
+          const card = document.createElement('div');
+          card.className = 'card-pending';
+
+          card.innerHTML = `
+            <div class="card-header">
+              <div class="card-title">
+                <h3>${item.keterangan || 'Transaksi Kas'}</h3>
+                <p>📅 ${formatDate(item.tanggal)}</p>
+              </div>
+              <span class="badge-type ${isMasuk ? 'badge-masuk' : 'badge-keluar'}">
+                ${isMasuk ? 'Kas Masuk (+)' : 'Kas Keluar (-)'}
+              </span>
+            </div>
+
+            <div class="card-body">
+              <div>
+                <div class="penginput-info">Penginput: <b>${item.penginput || 'Anonim'}</b></div>
+                <div style="margin-top: 4px;">${statusBadgeHTML}</div>
+              </div>
+              <div class="amount ${isMasuk ? 'masuk' : 'keluar'}">
+                ${isMasuk ? '+' : '-'}${formatRupiah(item.jumlah)}
+              </div>
+            </div>
+
+            <!-- Tombol Aksi Hanya Ditampilkan Jika Login Sebagai ADMIN dan Transaksi Masih PENDING -->
+            ${(isAdmin && status === 'pending') ? `
+              <div class="card-actions">
+                <button class="btn-action btn-reject" data-key="${item.key}">✖ Tolak</button>
+                <button class="btn-action btn-approve" data-key="${item.key}">✔ Terima</button>
+              </div>
+            ` : ''}
+          `;
+
+          container.appendChild(card);
+        });
+
+        // Event Listener untuk Tombol Terima & Tolak (Khusus Admin)
+        if (isAdmin) {
+          document.querySelectorAll('.btn-approve').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const key = e.target.getAttribute('data-key');
+              try {
+                await update(ref(db, `kas/${key}`), { status: 'diterima' });
+                alert("Transaksi berhasil disetujui!");
+              } catch (err) {
+                alert("Gagal memproses persetujuan: " + err.message);
+              }
+            });
+          });
+
+          document.querySelectorAll('.btn-reject').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const key = e.target.getAttribute('data-key');
+              if (confirm("Apakah Anda yakin ingin MENOLAK transaksi ini?")) {
+                try {
+                  await update(ref(db, `kas/${key}`), { status: 'ditolak' });
+                  alert("Transaksi telah ditolak.");
+                } catch (err) {
+                  alert("Gagal memproses penolakan: " + err.message);
+                }
+              }
+            });
+          });
+        }
+
+      });
+    }
+  </script>
+</body>
+</html>

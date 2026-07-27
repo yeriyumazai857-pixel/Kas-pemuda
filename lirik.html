@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lirik Lagu - Pemuda/i BNKP Samosir</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f8fafc; color: #334155; padding: 20px 16px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header h1 { font-size: 20px; color: #0f172a; }
+    .back-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+    
+    .card { background: white; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .lagu-title { font-weight: 700; font-size: 16px; color: #2563eb; margin-bottom: 8px; }
+    .isi-lirik { font-size: 14px; color: #334155; white-space: pre-line; margin-bottom: 12px; line-height: 1.5; }
+    .footer-card { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 8px; font-size: 11px; color: #94a3b8; }
+    
+    .action-btns { display: flex; gap: 6px; }
+    .btn-edit { background-color: #eab308; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .btn-delete { background-color: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; background: white; border-radius: 12px; border: 1px dashed #cbd5e1; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎵 Lirik Lagu Pujian</h1>
+      <a href="dashboard.html" class="back-btn">← Dashboard</a>
+    </div>
+
+    <div id="list-lagu">
+      <div class="empty-state">Memuat data dari database...</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c",
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com",
+      projectId: "kas-pemuda-gereja"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        loadLagu();
+      }
+    });
+
+    function loadLagu() {
+      // Pastikan nama path di database Anda 'lagu'. Jika di database namanya beda (misal 'lirik'), ganti di sini.
+      const dbRef = ref(db, 'lagu');
+      
+      onValue(dbRef, (snapshot) => {
+        const container = document.getElementById('list-lagu');
+        container.innerHTML = '';
+        let count = 0;
+
+        // DEBUG: Cek isi data di Console Browser (Tekan F12)
+        console.log("Status Snapshot:", snapshot.exists());
+        console.log("Isi Data Snapshot:", snapshot.val());
+
+        if (snapshot.exists()) {
+          snapshot.forEach((child) => {
+            const key = child.key;
+            const val = child.val();
+            count++;
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            card.innerHTML = `
+              <div class="lagu-title">🎶 ${escapeHtml(val.judul || 'Tanpa Judul')}</div>
+              <div class="isi-lirik">${escapeHtml(val.lirik || '')}</div>
+              <div class="footer-card">
+                <span>Penginput: <b>${escapeHtml(val.penginput || 'Anonim')}</b></span>
+                <div class="action-btns">
+                  <button class="btn-edit" data-key="${key}" data-judul="${escapeAttr(val.judul || '')}" data-lirik="${escapeAttr(val.lirik || '')}">Edit</button>
+                  <button class="btn-delete" data-key="${key}">Hapus</button>
+                </div>
+              </div>
+            `;
+            
+            container.appendChild(card);
+          });
+
+          // Pasang event listener tombol Hapus
+          document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const key = e.target.getAttribute('data-key');
+              hapusLagu(key);
+            });
+          });
+
+          // Pasang event listener tombol Edit
+          document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const key = e.target.getAttribute('data-key');
+              const judulLama = e.target.getAttribute('data-judul');
+              const lirikLama = e.target.getAttribute('data-lirik');
+              editLagu(key, judulLama, lirikLama);
+            });
+          });
+        }
+
+        if (count === 0) {
+          container.innerHTML = '<div class="empty-state">Belum ada lirik lagu yang tersimpan di database. (Cek console F12 untuk melihat data)</div>';
+        }
+      }, (error) => {
+        console.error("Gagal membaca database:", error);
+        document.getElementById('list-lagu').innerHTML = `<div class="empty-state">Gagal memuat data: ${error.message}</div>`;
+      });
+    }
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    function escapeAttr(text) {
+      return text.toString().replace(/"/g, '&quot;');
+    }
+
+    async function hapusLagu(key) {
+      if (confirm("Yakin ingin menghapus lirik lagu ini?")) {
+        try {
+          await remove(ref(db, `lagu/${key}`));
+          alert("Lirik lagu berhasil dihapus.");
+        } catch (err) {
+          alert("Gagal menghapus: " + err.message);
+        }
+      }
+    }
+
+    async function editLagu(key, judulLama, lirikLama) {
+      const judulBaru = prompt("Edit Judul Lagu:", judulLama);
+      if (judulBaru === null) return;
+
+      const lirikBaru = prompt("Edit Lirik Lagu:", lirikLama);
+      if (lirikBaru === null) return;
+
+      if (judulBaru.trim() === "" || lirikBaru.trim() === "") {
+        alert("Judul dan lirik tidak boleh kosong!");
+        return;
+      }
+
+      try {
+        await update(ref(db, `lagu/${key}`), {
+          judul: judulBaru,
+          lirik: lirikBaru
+        });
+        alert("Lirik lagu berhasil diperbarui!");
+      } catch (err) {
+        alert("Gagal memperbarui: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

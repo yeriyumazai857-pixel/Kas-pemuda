@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Kas - Pemuda/i BNKP Samosir</title>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    }
+    body { 
+      background-color: #f8fafc; 
+      color: #334155; 
+      padding: 20px; 
+      display: flex; 
+      justify-content: center; 
+      min-height: 100vh; 
+      align-items: center; 
+    }
+    .card { 
+      background: white; 
+      padding: 28px; 
+      border-radius: 16px; 
+      width: 100%; 
+      max-width: 450px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+      border: 1px solid #e2e8f0; 
+    }
+    .header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 20px; 
+      border-bottom: 2px solid #f1f5f9; 
+      padding-bottom: 10px; 
+    }
+    .header h2 { 
+      font-size: 18px; 
+      color: #1e293b; 
+    }
+    .back-btn { 
+      text-decoration: none; 
+      color: #64748b; 
+      font-size: 14px; 
+      font-weight: 600; 
+    }
+    .form-group { 
+      margin-bottom: 14px; 
+    }
+    .form-group label { 
+      display: block; 
+      font-size: 12px; 
+      font-weight: 700; 
+      color: #475569; 
+      text-transform: uppercase; 
+      margin-bottom: 6px; 
+    }
+    .form-group input, .form-group select { 
+      width: 100%; 
+      padding: 11px 14px; 
+      border: 1px solid #cbd5e1; 
+      border-radius: 8px; 
+      font-size: 14px; 
+      outline: none; 
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: #10b981;
+    }
+    .btn { 
+      width: 100%; 
+      padding: 12px; 
+      background-color: #10b981; 
+      color: white; 
+      border: none; 
+      border-radius: 8px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      margin-top: 10px; 
+      font-size: 14px; 
+      transition: background-color 0.2s;
+    }
+    .btn:hover { 
+      background-color: #059669; 
+    }
+    .hidden {
+      display: none !important;
+    }
+    .info-box {
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h2>💵 Input Catatan Kas</h2>
+      <a href="dashboard.html" class="back-btn">← Kembali</a>
+    </div>
+
+    <div class="info-box">
+      📌 <b>Catatan:</b> Transaksi yang diinput akan masuk ke antrean verifikasi Admin terlebih dahulu sebelum tampil di Laporan Utama.
+    </div>
+
+    <form id="form-kas">
+      <!-- Dropdown Nama Penginput -->
+      <div class="form-group">
+        <label for="penginput">Pilih Nama Anda (Penginput)</label>
+        <select id="penginput" required>
+          <option value="" disabled selected>-- Memuat Daftar Anggota --</option>
+        </select>
+      </div>
+
+      <!-- Pilih Tanggal -->
+      <div class="form-group">
+        <label for="tanggal">Tanggal</label>
+        <input type="date" id="tanggal" required>
+      </div>
+
+      <!-- Jenis Transaksi -->
+      <div class="form-group">
+        <label for="jenis">Jenis Transaksi</label>
+        <select id="jenis">
+          <option value="masuk">Kas Masuk (+)</option>
+          <option value="keluar">Kas Keluar (-)</option>
+        </select>
+      </div>
+
+      <!-- Dropdown Keterangan (Hanya Tampil Jika Kas Masuk) -->
+      <div class="form-group" id="group-pilihan-keterangan">
+        <label for="pilihan-keterangan">Keterangan Transaksi</label>
+        <select id="pilihan-keterangan">
+          <option value="Iuran Pemuda">Iuran Pemuda (Rp 5.000 / minggu)</option>
+          <option value="Kolekte Kebaktian">Kolekte Kebaktian</option>
+          <option value="Donasi / Sumbangan">Donasi / Sumbangan</option>
+          <option value="Lainnya">Lainnya...</option>
+        </select>
+      </div>
+
+      <!-- Form Pilih Nama Anggota Yang Bayar (Untuk Iuran) -->
+      <div class="form-group" id="group-nama-anggota">
+        <label for="pilih-anggota">Nama Anggota Yang Bayar</label>
+        <select id="pilih-anggota">
+          <option value="" disabled selected>-- Memuat Daftar Anggota --</option>
+        </select>
+      </div>
+
+      <!-- Form Detail Keterangan Manual -->
+      <div class="form-group hidden" id="group-keterangan-manual">
+        <label for="keterangan-manual">Detail Keterangan Pengeluaran / Transaksi</label>
+        <input type="text" id="keterangan-manual" placeholder="Contoh: Beli Snack & Air Mineral Kebaktian">
+      </div>
+
+      <!-- Form Nominal -->
+      <div class="form-group">
+        <label for="jumlah">Nominal (Rp)</label>
+        <input type="number" id="jumlah" placeholder="5000" value="5000" required>
+      </div>
+
+      <button type="submit" class="btn">Kirim Transaksi</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = { 
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c", 
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com", 
+      projectId: "kas-pemuda-gereja" 
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Set tanggal default hari ini
+    document.getElementById('tanggal').valueAsDate = new Date();
+
+    const selectPenginput = document.getElementById('penginput');
+    const selectJenis = document.getElementById('jenis');
+    const groupPilihanKeterangan = document.getElementById('group-pilihan-keterangan');
+    const selectKeterangan = document.getElementById('pilihan-keterangan');
+    const groupNamaAnggota = document.getElementById('group-nama-anggota');
+    const selectAnggota = document.getElementById('pilih-anggota');
+    const groupKeteranganManual = document.getElementById('group-keterangan-manual');
+    const inputKeteranganManual = document.getElementById('keterangan-manual');
+    const inputJumlah = document.getElementById('jumlah');
+
+    // Pengaturan Tampilan Form Dinamis & Pelepasan Atribut Required
+    function updateFormVisibility() {
+      const jenis = selectJenis.value;
+
+      if (jenis === 'keluar') {
+        // Jika Kas Keluar: Matikan required pada pilihan & tampilkan input manual pengeluaran
+        groupPilihanKeterangan.classList.add('hidden');
+        selectKeterangan.required = false;
+
+        groupNamaAnggota.classList.add('hidden');
+        selectAnggota.required = false;
+
+        groupKeteranganManual.classList.remove('hidden');
+        inputKeteranganManual.required = true;
+        
+        inputJumlah.value = '';
+      } else {
+        // Jika Kas Masuk: Aktifkan kembali pilihan keterangan
+        groupPilihanKeterangan.classList.remove('hidden');
+        selectKeterangan.required = true;
+
+        handleKeteranganMasukChange();
+      }
+    }
+
+    function handleKeteranganMasukChange() {
+      const val = selectKeterangan.value;
+
+      if (val === 'Iuran Pemuda') {
+        groupNamaAnggota.classList.remove('hidden');
+        selectAnggota.required = true;
+        groupKeteranganManual.classList.add('hidden');
+        inputKeteranganManual.required = false;
+
+        if (selectPenginput.value) {
+          selectAnggota.value = selectPenginput.value;
+        }
+        inputJumlah.value = 5000;
+      } else if (val === 'Lainnya') {
+        groupNamaAnggota.classList.add('hidden');
+        selectAnggota.required = false;
+        groupKeteranganManual.classList.remove('hidden');
+        inputKeteranganManual.required = true;
+        inputJumlah.value = '';
+      } else {
+        // Kolekte Kebaktian / Donasi
+        groupNamaAnggota.classList.add('hidden');
+        selectAnggota.required = false;
+        groupKeteranganManual.classList.add('hidden');
+        inputKeteranganManual.required = false;
+        inputJumlah.value = '';
+      }
+    }
+
+    // Load Anggota dari Database
+    async function loadAnggota() {
+      try {
+        const snapshot = await get(ref(db, 'anggota'));
+        
+        selectPenginput.innerHTML = '<option value="" disabled selected>-- Pilih Nama Anda --</option>';
+        selectAnggota.innerHTML = '<option value="" disabled selected>-- Pilih Nama Anggota --</option>';
+
+        if (snapshot.exists()) {
+          let listNama = [];
+          snapshot.forEach((child) => {
+            const member = child.val();
+            if (member.nama) listNama.push(member.nama);
+          });
+
+          listNama.sort();
+
+          listNama.forEach((nama) => {
+            const opt1 = document.createElement('option');
+            opt1.value = nama;
+            opt1.textContent = nama;
+            selectPenginput.appendChild(opt1);
+
+            const opt2 = document.createElement('option');
+            opt2.value = nama;
+            opt2.textContent = nama;
+            selectAnggota.appendChild(opt2);
+          });
+        }
+      } catch (e) {
+        console.error("Gagal memuat anggota:", e);
+      }
+    }
+
+    // Event Listeners
+    selectJenis.addEventListener('change', updateFormVisibility);
+    selectKeterangan.addEventListener('change', handleKeteranganMasukChange);
+
+    selectPenginput.addEventListener('change', (e) => {
+      if (selectJenis.value === 'masuk' && selectKeterangan.value === 'Iuran Pemuda') {
+        selectAnggota.value = e.target.value;
+      }
+    });
+
+    // Inisialisasi awal
+    loadAnggota();
+    updateFormVisibility();
+
+    // Submit Form
+    document.getElementById('form-kas').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      let finalKeterangan = "";
+
+      if (selectJenis.value === 'keluar') {
+        finalKeterangan = inputKeteranganManual.value;
+      } else {
+        if (selectKeterangan.value === 'Iuran Pemuda') {
+          finalKeterangan = `Iuran Pemuda - ${selectAnggota.value}`;
+        } else if (selectKeterangan.value === 'Lainnya') {
+          finalKeterangan = inputKeteranganManual.value;
+        } else {
+          finalKeterangan = selectKeterangan.value;
+        }
+      }
+
+      try {
+        await push(ref(db, 'kas'), {
+          penginput: selectPenginput.value,
+          tanggal: document.getElementById('tanggal').value,
+          jenis: selectJenis.value,
+          keterangan: finalKeterangan,
+          jumlah: parseInt(document.getElementById('jumlah').value),
+          status: 'pending' // Masuk antrean verifikasi Admin
+        });
+
+        alert("Transaksi berhasil dikirim! Menunggu persetujuan Admin.");
+        window.location.href = "kas.html";
+      } catch (err) { 
+        alert("Gagal mengirim data: " + err.message); 
+      }
+    });
+  </script>
+</body>
+</html>

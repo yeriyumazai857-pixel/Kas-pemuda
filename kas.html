@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Kas - Pemuda/i BNKP Samosir</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #334155;
+      padding: 20px 16px 80px 16px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #1e293b;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-add {
+      background-color: #10b981;
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .back-btn {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Summary */
+    .summary-card {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+    }
+
+    .summary-card p {
+      font-size: 13px;
+      color: #bfdbfe;
+    }
+
+    .summary-card h2 {
+      font-size: 28px;
+      margin-top: 4px;
+    }
+
+    /* Tabs */
+    .tab-container {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 6px;
+      border: none;
+      background: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 12px;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: #1e3a8a;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .search-box {
+      margin-bottom: 16px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 11px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    .list-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .item-card {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .item-info h4 {
+      font-size: 15px;
+      color: #0f172a;
+    }
+
+    .item-info p {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .item-right {
+      text-align: right;
+    }
+
+    .amount {
+      font-size: 15px;
+      font-weight: 700;
+      color: #16a34a;
+    }
+
+    .amount.minus {
+      color: #dc2626;
+    }
+
+    .btn-detail {
+      margin-top: 6px;
+      padding: 5px 10px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-action {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px;
+      margin-left: 4px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      color: #0f172a;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #64748b;
+    }
+
+    .modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .history-item {
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .history-date {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .history-amount {
+      font-size: 13px;
+      font-weight: 700;
+      color: #16a34a;
+    }
+
+    /* Nav Buttons */
+    .floating-nav {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: #1e3a8a;
+      color: white;
+      border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div id="top"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1>💰 Laporan Kas</h1>
+      <div class="header-actions">
+        <a href="tambah-catatan.html" class="btn-add">+ Catat Kas</a>
+        <a href="dashboard.html" class="back-btn">← Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Ringkasan Saldo -->
+    <div class="summary-card">
+      <p>Total Saldo Kas Pemuda (Terverifikasi)</p>
+      <h2 id="total-saldo">Rp 0</h2>
+    </div>
+
+    <!-- Tab Pilihan -->
+    <div class="tab-container">
+      <button class="tab-btn active" id="tab-iuran-btn">🙋‍♂️ Iuran Anggota</button>
+      <button class="tab-btn" id="tab-masuk-btn">⛪ Kas Masuk</button>
+      <button class="tab-btn" id="tab-keluar-btn">💸 Pengeluaran</button>
+    </div>
+
+    <!-- Tab Iuran -->
+    <div id="section-iuran">
+      <div class="search-box">
+        <input type="text" id="search-iuran" placeholder="🔍 Cari nama anggota...">
+      </div>
+      <div id="list-iuran" class="list-grid">
+        <div style="text-align: center; color: #94a3b8; padding: 20px;">Memuat data iuran...</div>
+      </div>
+    </div>
+
+    <!-- Tab Kas Masuk (Kolekte / Donasi) -->
+    <div id="section-masuk" class="hidden">
+      <div id="list-masuk" class="list-grid">
+        <div style="text-align: center; color: #94a3b8; padding: 20px;">Memuat data kas masuk...</div>
+      </div>
+    </div>
+
+    <!-- Tab Kas Keluar (Pengeluaran) -->
+    <div id="section-keluar" class="hidden">
+      <div id="list-keluar" class="list-grid">
+        <div style="text-align: center; color: #94a3b8; padding: 20px;">Memuat data pengeluaran...</div>
+      </div>
+    </div>
+
+    <div id="bottom"></div>
+  </div>
+
+  <!-- Modal Detail Pembayaran -->
+  <div id="modal-detail" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Riwayat Pembayaran</h3>
+        <button class="btn-close" id="btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body" id="modal-list-history"></div>
+    </div>
+  </div>
+
+  <!-- Floating Nav -->
+  <div class="floating-nav">
+    <button class="nav-btn" id="btn-to-top">⬆</button>
+    <button class="nav-btn" id="btn-to-bottom">⬇</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = { 
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c", 
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com", 
+      projectId: "kas-pemuda-gereja" 
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let rawKasData = [];
+    let iuranGrouped = {};
+
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+    }
+
+    function formatDate(dateStr) {
+      if(!dateStr) return "-";
+      const parts = dateStr.split('-');
+      if(parts.length !== 3) return dateStr;
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+      return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
+    }
+
+    // Load Data
+    onValue(ref(db, 'kas'), (snapshot) => {
+      rawKasData = [];
+      iuranGrouped = {};
+      let totalSaldo = 0;
+
+      if (snapshot.exists()) {
+        snapshot.forEach((child) => {
+          const key = child.key;
+          const val = child.val();
+          
+          // FILTER: Hanya ambil yang statusnya 'diterima' atau data lama tanpa status
+          if (!val.status || val.status === 'diterima') {
+            const amount = parseInt(val.jumlah) || 0;
+
+            if (val.jenis === 'masuk') totalSaldo += amount;
+            else totalSaldo -= amount;
+
+            const item = { key, ...val, jumlah: amount };
+            rawKasData.push(item);
+
+            if (val.jenis === 'masuk' && val.keterangan && val.keterangan.startsWith('Iuran Pemuda - ')) {
+              const nama = val.keterangan.replace('Iuran Pemuda - ', '').trim();
+              if (!iuranGrouped[nama]) {
+                iuranGrouped[nama] = { total: 0, items: [] };
+              }
+              iuranGrouped[nama].total += amount;
+              iuranGrouped[nama].items.push(item);
+            }
+          }
+        });
+      }
+
+      document.getElementById('total-saldo').textContent = formatRupiah(totalSaldo);
+      renderIuranTab();
+      renderKasMasukTab();
+      renderKasKeluarTab();
+    });
+
+    // Render Tab Iuran
+    function renderIuranTab(filterName = '') {
+      const container = document.getElementById('list-iuran');
+      container.innerHTML = '';
+
+      const names = Object.keys(iuranGrouped).filter(name => name.toLowerCase().includes(filterName.toLowerCase()));
+
+      if (names.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px;">Tidak ada catatan iuran terverifikasi.</div>';
+        return;
+      }
+
+      names.sort().forEach(nama => {
+        const data = iuranGrouped[nama];
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-info">
+            <h4>👤 ${nama}</h4>
+            <p>Total Lunas: ${data.items.length} kali</p>
+          </div>
+          <div class="item-right">
+            <div class="amount">${formatRupiah(data.total)}</div>
+            <button class="btn-detail" data-nama="${nama}">🔍 Detail</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.querySelectorAll('.btn-detail').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          showModalDetail(e.target.getAttribute('data-nama'));
+        });
+      });
+    }
+
+    // Modal Detail Iuran Per Anggota
+    function showModalDetail(nama) {
+      const modal = document.getElementById('modal-detail');
+      const title = document.getElementById('modal-title');
+      const listContainer = document.getElementById('modal-list-history');
+
+      title.textContent = `Riwayat Iuran: ${nama}`;
+      listContainer.innerHTML = '';
+
+      const items = iuranGrouped[nama] ? iuranGrouped[nama].items : [];
+      items.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+          <div>
+            <div class="history-date">📅 ${formatDate(item.tanggal)}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="history-amount">${formatRupiah(item.jumlah)}</span>
+            <button class="btn-action edit-btn" data-key="${item.key}" data-amount="${item.jumlah}" data-date="${item.tanggal}">✏️</button>
+            <button class="btn-action delete-btn" data-key="${item.key}">🗑️</button>
+          </div>
+        `;
+        listContainer.appendChild(div);
+      });
+
+      modal.classList.remove('hidden');
+      bindActions(listContainer);
+    }
+
+    // Render Tab Kas Masuk (Selain Iuran)
+    function renderKasMasukTab() {
+      const container = document.getElementById('list-masuk');
+      container.innerHTML = '';
+
+      const kasMasuk = rawKasData.filter(item => item.jenis === 'masuk' && (!item.keterangan || !item.keterangan.startsWith('Iuran Pemuda - ')));
+
+      if (kasMasuk.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px;">Belum ada data kas masuk lainnya.</div>';
+        return;
+      }
+
+      kasMasuk.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+      kasMasuk.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-info">
+            <h4>⛪ ${item.keterangan}</h4>
+            <p>📅 ${formatDate(item.tanggal)} ${item.penginput ? '• Oleh: ' + item.penginput : ''}</p>
+          </div>
+          <div class="item-right" style="display:flex; align-items:center; gap:8px;">
+            <span class="amount">+${formatRupiah(item.jumlah)}</span>
+            <button class="btn-action edit-btn" data-key="${item.key}" data-amount="${item.jumlah}" data-date="${item.tanggal}">✏️</button>
+            <button class="btn-action delete-btn" data-key="${item.key}">🗑️</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      bindActions(container);
+    }
+
+    // Render Tab Pengeluaran (Kas Keluar)
+    function renderKasKeluarTab() {
+      const container = document.getElementById('list-keluar');
+      container.innerHTML = '';
+
+      const kasKeluar = rawKasData.filter(item => item.jenis === 'keluar');
+
+      if (kasKeluar.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px;">Belum ada catatan pengeluaran.</div>';
+        return;
+      }
+
+      kasKeluar.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+      kasKeluar.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-info">
+            <h4>💸 ${item.keterangan}</h4>
+            <p>📅 ${formatDate(item.tanggal)} ${item.penginput ? '• Oleh: ' + item.penginput : ''}</p>
+          </div>
+          <div class="item-right" style="display:flex; align-items:center; gap:8px;">
+            <span class="amount minus">-${formatRupiah(item.jumlah)}</span>
+            <button class="btn-action edit-btn" data-key="${item.key}" data-amount="${item.jumlah}" data-date="${item.tanggal}">✏️</button>
+            <button class="btn-action delete-btn" data-key="${item.key}">🗑️</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      bindActions(container);
+    }
+
+    // Action Tombol Delete dan Edit
+    function bindActions(parentContainer) {
+      parentContainer.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const key = e.target.getAttribute('data-key');
+          if (confirm("Apakah Anda yakin ingin menghapus catatan transaksi ini?")) {
+            await remove(ref(db, `kas/${key}`));
+            document.getElementById('modal-detail').classList.add('hidden');
+          }
+        });
+      });
+
+      parentContainer.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const key = e.target.getAttribute('data-key');
+          const currentAmount = e.target.getAttribute('data-amount');
+          const currentDate = e.target.getAttribute('data-date');
+
+          const newAmount = prompt("Masukkan nominal baru (Rp):", currentAmount);
+          if (newAmount === null || newAmount === "") return;
+
+          const newDate = prompt("Masukkan tanggal baru (YYYY-MM-DD):", currentDate);
+          if (newDate === null || newDate === "") return;
+
+          await update(ref(db, `kas/${key}`), {
+            jumlah: parseInt(newAmount),
+            tanggal: newDate
+          });
+
+          alert("Transaksi berhasil diperbarui!");
+          document.getElementById('modal-detail').classList.add('hidden');
+        });
+      });
+    }
+
+    // Navigation Tab Switching
+    const tabIuranBtn = document.getElementById('tab-iuran-btn');
+    const tabMasukBtn = document.getElementById('tab-masuk-btn');
+    const tabKeluarBtn = document.getElementById('tab-keluar-btn');
+
+    const sectionIuran = document.getElementById('section-iuran');
+    const sectionMasuk = document.getElementById('section-masuk');
+    const sectionKeluar = document.getElementById('section-keluar');
+
+    tabIuranBtn.addEventListener('click', () => {
+      tabIuranBtn.classList.add('active');
+      tabMasukBtn.classList.remove('active');
+      tabKeluarBtn.classList.remove('active');
+
+      sectionIuran.classList.remove('hidden');
+      sectionMasuk.classList.add('hidden');
+      sectionKeluar.classList.add('hidden');
+    });
+
+    tabMasukBtn.addEventListener('click', () => {
+      tabMasukBtn.classList.add('active');
+      tabIuranBtn.classList.remove('active');
+      tabKeluarBtn.classList.remove('active');
+
+      sectionMasuk.classList.remove('hidden');
+      sectionIuran.classList.add('hidden');
+      sectionKeluar.classList.add('hidden');
+    });
+
+    tabKeluarBtn.addEventListener('click', () => {
+      tabKeluarBtn.classList.add('active');
+      tabIuranBtn.classList.remove('active');
+      tabMasukBtn.classList.remove('active');
+
+      sectionKeluar.classList.remove('hidden');
+      sectionIuran.classList.add('hidden');
+      sectionMasuk.classList.add('hidden');
+    });
+
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+      document.getElementById('modal-detail').classList.add('hidden');
+    });
+
+    document.getElementById('search-iuran').addEventListener('input', (e) => {
+      renderIuranTab(e.target.value);
+    });
+
+    document.getElementById('btn-to-top').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-to-bottom').addEventListener('click', () => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>

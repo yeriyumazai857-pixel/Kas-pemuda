@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifikasi Anggota - Admin BNKP Samosir</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f8fafc; color: #334155; padding: 20px 16px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header h1 { font-size: 18px; color: #0f172a; }
+    .back-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+    
+    .card { background: white; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .card-title { font-weight: 700; font-size: 15px; color: #1e293b; margin-bottom: 4px; }
+    .card-sub { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+    
+    .btn-group { display: flex; gap: 8px; }
+    .btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .btn-approve { background-color: #10b981; color: white; }
+    .btn-reject { background-color: #ef4444; color: white; }
+    .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; background: white; border-radius: 12px; border: 1px dashed #cbd5e1; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>⏳ Persetujuan Anggota Baru</h1>
+      <a href="dashboard.html" class="back-btn">← Dashboard</a>
+    </div>
+
+    <div id="list-pending"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, get, child, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c",
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com",
+      projectId: "kas-pemuda-gereja"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        const snapshot = await get(child(ref(db), `users/${user.uid}`));
+        if (!snapshot.exists() || snapshot.val().role !== 'admin') {
+          alert("Hanya Admin yang dapat mengakses halaman ini!");
+          window.location.href = "dashboard.html";
+        } else {
+          loadPendingAnggota();
+        }
+      }
+    });
+
+    function loadPendingAnggota() {
+      onValue(ref(db, 'anggota'), (snapshot) => {
+        const container = document.getElementById('list-pending');
+        container.innerHTML = '';
+        let count = 0;
+
+        if (snapshot.exists()) {
+          snapshot.forEach((child) => {
+            const key = child.key;
+            const val = child.val();
+
+            if (val.status === 'pending') {
+              count++;
+              container.innerHTML += `
+                <div class="card">
+                  <div class="card-title">${val.nama}</div>
+                  <div class="card-sub">
+                    🎂 Tgl Lahir: ${val.tglLahir || '-'} | 📱 HP: ${val.hp || '-'}<br>
+                    Penginput: <b>${val.penginput || 'Anonim'}</b>
+                  </div>
+                  <div class="btn-group">
+                    <button class="btn btn-approve" onclick="approveAnggota('${key}')">Setujui</button>
+                    <button class="btn btn-reject" onclick="rejectAnggota('${key}')">Tolak</button>
+                  </div>
+                </div>
+              `;
+            }
+          });
+        }
+
+        if (count === 0) {
+          container.innerHTML = '<div class="empty-state">Tidak ada pendaftaran anggota yang menunggu persetujuan.</div>';
+        }
+      });
+    }
+
+    window.approveAnggota = async function(key) {
+      if (confirm("Setujui anggota ini?")) {
+        await update(ref(db, `anggota/${key}`), { status: 'approved' });
+        alert("Anggota berhasil disetujui!");
+      }
+    };
+
+    window.rejectAnggota = async function(key) {
+      if (confirm("Tolak dan hapus pendaftaran ini?")) {
+        await remove(ref(db, `anggota/${key}`));
+        alert("Pendaftaran berhasil ditolak!");
+      }
+    };
+  </script>
+</body>
+</html>
