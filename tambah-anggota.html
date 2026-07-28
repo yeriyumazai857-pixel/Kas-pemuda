@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Anggota - Pemuda/i BNKP Samosir</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f8fafc; color: #334155; padding: 20px 16px; }
+    .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header h1 { font-size: 18px; color: #0f172a; }
+    .back-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; }
+    .readonly-input { background-color: #f1f5f9 !important; color: #64748b; cursor: not-allowed; }
+    .row-lahir { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-submit { width: 100%; padding: 12px; background-color: #2563eb; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>👤 Input Anggota Baru</h1>
+      <a href="dashboard.html" class="back-btn">← Dashboard</a>
+    </div>
+
+    <form id="form-anggota">
+      <div class="form-group">
+        <label for="penginput">Penginput</label>
+        <input type="text" id="penginput" class="readonly-input" readonly placeholder="Memuat nama...">
+      </div>
+
+      <div class="form-group">
+        <label for="nama">Nama Lengkap</label>
+        <input type="text" id="nama" placeholder="Contoh: Budi Santoso" required>
+      </div>
+
+      <div class="form-group">
+        <label for="jenisKelamin">Jenis Kelamin</label>
+        <select id="jenisKelamin" required>
+          <option value="" disabled selected>Pilih Jenis Kelamin</option>
+          <option value="Laki-laki">Laki-laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+      </div>
+
+      <div class="row-lahir">
+        <div class="form-group">
+          <label for="tempatLahir">Tempat Lahir</label>
+          <input type="text" id="tempatLahir" placeholder="Contoh: Pangururan" required>
+        </div>
+        <div class="form-group">
+          <label for="tglLahir">Tanggal Lahir</label>
+          <input type="date" id="tglLahir" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="alamat">Alamat</label>
+        <textarea id="alamat" rows="2" placeholder="Contoh: Jl. Pelajar No. 10" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="hp">Nomor HP / WhatsApp</label>
+        <input type="tel" id="hp" placeholder="081234567890" required>
+      </div>
+
+      <button type="submit" id="btn-save" class="btn-submit">Daftarkan Anggota</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, get, child, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c",
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com",
+      projectId: "kas-pemuda-gereja"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let currentUserName = "Anonim";
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        try {
+          const snapshot = await get(child(ref(db), `users/${user.uid}`));
+          if (snapshot.exists()) currentUserName = snapshot.val().nama || user.email;
+        } catch (e) {}
+        document.getElementById('penginput').value = currentUserName;
+      }
+    });
+
+    document.getElementById('form-anggota').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-save');
+      btn.disabled = true;
+      btn.textContent = "Mengirim...";
+
+      const tempatLahir = document.getElementById('tempatLahir').value;
+      const tglLahir = document.getElementById('tglLahir').value;
+
+      try {
+        await push(ref(db, 'anggota'), {
+          nama: document.getElementById('nama').value,
+          jenisKelamin: document.getElementById('jenisKelamin').value,
+          tempatTglLahir: `${tempatLahir}, ${tglLahir}`,
+          tglLahir: tglLahir,
+          alamat: document.getElementById('alamat').value,
+          hp: document.getElementById('hp').value,
+          penginput: currentUserName,
+          status: 'pending',
+          createdAt: serverTimestamp()
+        });
+
+        alert("Pendaftaran anggota berhasil dikirim! Menunggu verifikasi dari Admin.");
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        alert("Gagal: " + err.message);
+        btn.disabled = false;
+        btn.textContent = "Daftarkan Anggota";
+      }
+    });
+  </script>
+</body>
+</html>
