@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acara Ulang Tahun - BNKP Persiapan Samosir</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f8fafc; color: #334155; padding: 20px 16px 80px 16px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header h1 { font-size: 18px; color: #0f172a; }
+    .back-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+    
+    .hero-card { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: white; padding: 24px; border-radius: 16px; text-align: center; margin-bottom: 24px; box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.25); }
+    .hero-card h2 { font-size: 22px; margin-bottom: 8px; }
+    .hero-card p { font-size: 14px; color: #fbcfe8; }
+
+    .bday-section { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .section-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    
+    .bday-list { display: flex; flex-direction: column; gap: 12px; }
+    .bday-item { background: #fdf2f8; border: 1px solid #fbcfe8; padding: 14px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
+    .bday-avatar { font-size: 28px; }
+    .bday-info h3 { font-size: 15px; color: #be185d; font-weight: 700; margin-bottom: 2px; }
+    .bday-info p { font-size: 13px; color: #475569; }
+
+    .comment-section { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; }
+    .btn-submit { width: 100%; padding: 12px; background-color: #db2777; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-submit:hover { background-color: #be185d; }
+
+    .comment-list { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 16px; }
+    .comment-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 14px; border-radius: 10px; position: relative; }
+    .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .comment-name { font-weight: 700; font-size: 13px; color: #1e293b; }
+    .comment-date { font-size: 11px; color: #94a3b8; }
+    .comment-text { font-size: 13px; color: #334155; line-height: 1.4; word-break: break-word; }
+    
+    .btn-delete-comment { background: #fee2e2; color: #dc2626; border: none; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-delete-comment:hover { background: #fecaca; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎂 Acara Ulang Tahun</h1>
+      <a href="dashboard.html" class="back-btn">← Dashboard</a>
+    </div>
+
+    <div class="hero-card">
+      <h2 id="hero-title">Sukacita Bulan Ini 🎉</h2>
+      <p id="hero-subtitle">Mari bersama-sama mendoakan saudara/i kita yang merayakan ulang tahun pada bulan ini.</p>
+    </div>
+
+    <!-- Daftar Orang yang Ulang Tahun Bulan Ini / Berikutnya -->
+    <div class="bday-section">
+      <div class="section-title" id="section-title-text">✨ Anggota yang Berulang Tahun</div>
+      <div id="list-ultah-hari-ini" class="bday-list">
+        <div style="text-align: center; color: #94a3b8; padding: 10px 0;">Memeriksa data ulang tahun...</div>
+      </div>
+    </div>
+
+    <!-- Form Ucapan & Komentar -->
+    <div class="comment-section">
+      <div class="section-title">💬 Kirim Ucapan & Doa</div>
+      <form id="form-ucapan">
+        <div class="form-group">
+          <label for="namaPengirim">Nama Anda</label>
+          <input type="text" id="namaPengirim" placeholder="Contoh: Arman" required>
+        </div>
+        <div class="form-group">
+          <label for="pesanUcapan">Pesan / Doa Ucapan Selamat</label>
+          <textarea id="pesanUcapan" rows="3" placeholder="Tuliskan ucapan selamat dan doa terbaik..." required></textarea>
+        </div>
+        <button type="submit" id="btn-kirim" class="btn-submit">Kirim Ucapan 🚀</button>
+      </form>
+
+      <div id="list-komentar" class="comment-list">
+        <div style="text-align: center; color: #94a3b8; padding: 10px 0;">Memuat ucapan...</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, onValue, get, child, push, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDB0E9H12BK6TaYdewtQc-gPhuFaf_HZ9c",
+      databaseURL: "https://kas-pemuda-gereja-default-rtdb.firebaseio.com",
+      projectId: "kas-pemuda-gereja"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let isAdmin = false;
+
+    // Cek status login & role pengguna (apakah admin)
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        try {
+          const snapshot = await get(child(ref(db), `users/${user.uid}`));
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            if (userData.role === 'admin') {
+              isAdmin = true;
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        loadCommentsAndBirthdays();
+      }
+    });
+
+    function loadCommentsAndBirthdays() {
+      const namaBulan = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+      ];
+
+      // 1. Logika Cek Anggota Ulang Tahun (Mencari bulan aktif secara dinamis)
+      onValue(ref(db, 'anggota'), (snapshot) => {
+        const container = document.getElementById('list-ultah-hari-ini');
+        const sectionTitleText = document.getElementById('section-title-text');
+        const heroTitle = document.getElementById('hero-title');
+        const heroSubtitle = document.getElementById('hero-subtitle');
+        container.innerHTML = '';
+
+        const today = new Date();
+        const startMonthIndex = today.getMonth(); // 0 = Januari, 11 = Desember
+
+        let targetMonthIndex = -1;
+        let matchedMembers = [];
+
+        // Loop mulai dari bulan saat ini hingga akhir tahun, lalu putar ke bulan awal jika belum ada yang ketemu
+        for (let i = 0; i < 12; i++) {
+          const currentCheckingIndex = (startMonthIndex + i) % 12;
+          const targetMonthStr = String(currentCheckingIndex + 1).padStart(2, '0');
+          
+          let tempMembers = [];
+          if (snapshot.exists()) {
+            snapshot.forEach((childNode) => {
+              const val = childNode.val();
+              if (val.status === 'approved' && val.tglLahir) {
+                const parts = val.tglLahir.split('-');
+                if (parts.length === 3) {
+                  const memberMonth = parts[1];
+                  if (memberMonth === targetMonthStr) {
+                    tempMembers.push({
+                      nama: val.nama,
+                      tglLahir: val.tglLahir,
+                      tglLengkap: `${parts[2]} ${namaBulan[currentCheckingIndex]} ${parts[0]}`,
+                      tempatTglLahir: val.tempatTglLahir || val.tglLahir,
+                      jenisKelamin: val.jenisKelamin || ''
+                    });
+                  }
+                }
+              }
+            });
+          }
+
+          if (tempMembers.length > 0) {
+            targetMonthIndex = currentCheckingIndex;
+            matchedMembers = tempMembers;
+            break;
+          }
+        }
+
+        // Render hasil ke halaman
+        if (targetMonthIndex !== -1 && matchedMembers.length > 0) {
+          const namaBulanAktif = namaBulan[targetMonthIndex];
+          sectionTitleText.innerHTML = `✨ Anggota yang Berulang Tahun di Bulan ${namaBulanAktif}`;
+          heroTitle.textContent = `Sukacita Bulan ${namaBulanAktif} 🎉`;
+          heroSubtitle.textContent = `Mari bersama-sama mendoakan saudara/i kita yang merayakan ulang tahun pada bulan ${namaBulanAktif}.`;
+
+          matchedMembers.forEach(m => {
+            container.innerHTML += `
+              <div class="bday-item">
+                <div class="bday-avatar">🎈</div>
+                <div class="bday-info">
+                  <h3>${m.nama}</h3>
+                  <p>Tanggal Lahir: ${m.tglLengkap} • ${m.jenisKelamin}</p>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          sectionTitleText.innerHTML = `✨ Anggota yang Berulang Tahun`;
+          heroTitle.textContent = `Sukacita Ulang Tahun 🎉`;
+          heroSubtitle.textContent = `Belum ada data anggota yang mencantumkan tanggal lahir.`;
+          container.innerHTML = '<div style="text-align: center; color: #64748b; font-size: 13px; padding: 10px 0;">Tidak ada data ulang tahun yang ditemukan. Tuhan memberkati! 🙏</div>';
+        }
+      });
+
+      // 2. Muat Daftar Komentar Ucapan Secara Realtime
+      onValue(ref(db, 'ucapan_ultah'), (snapshot) => {
+        const commentContainer = document.getElementById('list-komentar');
+        commentContainer.innerHTML = '';
+
+        let comments = [];
+        if (snapshot.exists()) {
+          snapshot.forEach((childNode) => {
+            comments.push({ id: childNode.key, ...childNode.val() });
+          });
+          comments.reverse();
+        }
+
+        if (comments.length === 0) {
+          commentContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; font-size: 13px; padding: 10px 0;">Belum ada ucapan. Jadilah yang pertama memberikan ucapan!</div>';
+          return;
+        }
+
+        comments.forEach(c => {
+          let timeString = "Baru saja";
+          if (c.createdAt) {
+            const dateObj = new Date(c.createdAt);
+            timeString = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+          }
+
+          let deleteButtonHtml = '';
+          if (isAdmin) {
+            deleteButtonHtml = `<button class="btn-delete-comment" onclick="hapusKomentar('${c.id}')">🗑️ Hapus Komentar</button>`;
+          }
+
+          commentContainer.innerHTML += `
+            <div class="comment-card" id="comment-${c.id}">
+              <div class="comment-header">
+                <span class="comment-name">💬 ${c.nama}</span>
+                <span class="comment-date">${timeString}</span>
+              </div>
+              <div class="comment-text">${c.pesan}</div>
+              ${deleteButtonHtml}
+            </div>
+          `;
+        });
+      });
+    }
+
+    window.hapusKomentar = async function(id) {
+      if (confirm("Yakin ingin menghapus ucapan/komentar ini?")) {
+        try {
+          await remove(ref(db, `ucapan_ultah/${id}`));
+          alert("Komentar berhasil dihapus.");
+        } catch (err) {
+          alert("Gagal menghapus komentar: " + err.message);
+        }
+      }
+    };
+
+    document.getElementById('form-ucapan').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-kirim');
+      btn.disabled = true;
+      btn.textContent = "Mengirim...";
+
+      const nama = document.getElementById('namaPengirim').value;
+      const pesan = document.getElementById('pesanUcapan').value;
+
+      try {
+        await push(ref(db, 'ucapan_ultah'), {
+          nama: nama,
+          pesan: pesan,
+          createdAt: serverTimestamp()
+        });
+
+        document.getElementById('pesanUcapan').value = '';
+        btn.disabled = false;
+        btn.textContent = "Kirim Ucapan 🚀";
+      } catch (err) {
+        alert("Gagal mengirim ucapan: " + err.message);
+        btn.disabled = false;
+        btn.textContent = "Kirim Ucapan 🚀";
+      }
+    });
+  </script>
+</body>
+</html>
